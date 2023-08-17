@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char nome_do_aluno[101];
+    char cpf_do_aluno[12];
+    int qtd_de_notas;
+    int notas_de_alunos;
+} Aluno;
+
+Aluno *carregaAlunos(int *qtdAlunos);
+float *leNotas(int *qtdNotas);
+float media(float *notas, int qtdNotas);
+void ordena(Aluno *alunos, int qtdAlunos);
+void salvaAlunos(Aluno *alunos, int qtdAlunos);
+
+int main() {
+    Aluno *alunos;
+    FILE *arq_txt,*arq_bin;
+    int qtdAlunos=0;
+
+    qtdAlunos = ftell(arq_txt);
+    printf("%d",qtdAlunos);
+    return 0;
+}
+
+Aluno *carregaAlunos(int *qtdAlunos) {
+
+}
