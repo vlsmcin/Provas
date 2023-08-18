@@ -6,7 +6,7 @@ typedef struct {
     char nome_do_aluno[101];
     char cpf_do_aluno[12];
     int qtd_de_notas;
-    int notas_de_alunos;
+    float *notas_de_alunos;
 } Aluno;
 
 Aluno *carregaAlunos(int *qtdAlunos);
@@ -14,17 +14,86 @@ float *leNotas(int *qtdNotas);
 float media(float *notas, int qtdNotas);
 void ordena(Aluno *alunos, int qtdAlunos);
 void salvaAlunos(Aluno *alunos, int qtdAlunos);
+void lerbin(int qtdalunos);
 
 int main() {
     Aluno *alunos;
-    FILE *arq_txt,*arq_bin;
     int qtdAlunos=0;
-
-    qtdAlunos = ftell(arq_txt);
-    printf("%d",qtdAlunos);
+    alunos = carregaAlunos(&qtdAlunos);
+    for (int i=0;i<qtdAlunos;i++) {
+        printf("Aluno %d:\n",i);
+        alunos[i].notas_de_alunos = leNotas(&alunos[i].qtd_de_notas);
+    }
+    ordena(alunos,qtdAlunos);
+    salvaAlunos(alunos,qtdAlunos);
+    for (int i=0;i<qtdAlunos;i++)
+        free(alunos[i].notas_de_alunos);
+    free(alunos);
+    lerbin(qtdAlunos);
     return 0;
 }
 
 Aluno *carregaAlunos(int *qtdAlunos) {
+    FILE *arq = fopen("aluno.txt","r");
+    Aluno *alunos = NULL;
+    int i=0;
+    while (!feof(arq)) {
+        alunos = (Aluno *) realloc (alunos,(i+1)*sizeof(Aluno));
+        fscanf(arq," %100[^\n] ",alunos[i].nome_do_aluno);
+        fscanf(arq," %11[^\n] ",alunos[i].cpf_do_aluno);
+        i++;
+        (*qtdAlunos)++;
+    }
+    fclose(arq);
+    return alunos;
+}
 
+float *leNotas(int *qtdNotas) {
+    int i = 0,n_add=0;
+    float *notas=NULL;
+    while (n_add >= 0) {
+        scanf("%d",&n_add);
+        if (n_add >= 0) {
+            notas = (float *) realloc(notas,((*qtdNotas)+1)*sizeof(float));
+            notas[*qtdNotas] = n_add;
+            (*qtdNotas) ++;
+        }
+    }
+    return notas;
+}
+
+float media(float *notas, int qtdNotas) {
+    float soma = 0;
+    for (int i=0;i<qtdNotas;i++) {
+        soma += notas[i];
+    }
+    return soma/qtdNotas;
+}
+
+void ordena(Aluno *alunos, int qtdAlunos) {
+    Aluno troca;
+    for (int i=0;i<qtdAlunos;i++) {
+        for (int j=0;j<qtdAlunos-1-i;j++){
+            if (media(alunos[j].notas_de_alunos,alunos[j].qtd_de_notas) < media(alunos[j+1].notas_de_alunos,alunos[j+1].qtd_de_notas))
+                troca = alunos[j+1];
+                alunos[j+1] = alunos[j];
+                alunos[j] = troca;
+        }
+    }
+}
+
+void salvaAlunos(Aluno *alunos, int qtdAlunos) {
+    FILE *arq = fopen("aluno.bin","wb");
+    fwrite(alunos,sizeof(Aluno),qtdAlunos,arq);
+    fclose(arq);
+}
+
+void lerbin(int qtdalunos) {
+    FILE *arq = fopen("aluno.bin","rb");
+    Aluno * alunos;
+    fread(alunos,sizeof(Aluno),qtdalunos,arq);
+    for (int i=0;i<qtdalunos;i++){
+        printf("%s\n",alunos[i].nome_do_aluno);
+        printf("%s\n",alunos[i].cpf_do_aluno);
+    }
 }
